@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Image Recognition with 3D Model and Voice Interaction</title>
+  <!-- Importar las librerías necesarias -->
+  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image.prod.js"></script>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <!-- Importar la librería de reconocimiento de voz -->
+  <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+  <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
+</head>
+<body>
+    <!-- Contenedor principal -->
+    <div id="main-container">
+      <!-- Contenedor para la escena de realidad aumentada -->
+      <div id="ar-scene-container">
+        <!-- Aquí se mostrará la escena de realidad aumentada -->
+        <a-scene embedded arjs="sourceType: image; sourceUrl: URL_DE_TU_IMAGEN">
+          <!-- Elemento de la cámara -->
+          <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
+            raycaster="far: 10000; objects: .clickable"></a-camera>
+  
+          <!-- Resto de tu escena -->
+          <a-entity id="mytarget" mytarget mindar-image-target="targetIndex: 0">
+            <a-plane src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
+            <a-entity visible=false id="portfolio-panel" position="0 0 -0.01">
+              <a-entity id="portfolio-item0">
+                <a-video id="paintandquest-video-link" webkit-playsinline playsinline width="1" height="0.552"
+                  position="0 0 0"></a-video>
+                <a-image id="paintandquest-preview-button" class="clickable" src="#paintandquest-preview"
+                  alpha-test="0.5" position="0 0 0" height="0.552" width="1">
+                </a-image>
+              </a-entity>
+              <a-entity id="portfolio-item1" visible=false>
+                <a-image class="clickable" src="#coffeemachine-preview" alpha-test="0.5" position="0 0 0" height="0.552"
+                  width="1">
+                </a-image>
+              </a-entity>
+              <a-entity id="portfolio-item2" visible=false>
+                <a-image class="clickable" src="#peak-preview" alpha-test="0.5" position="0 0 0" height="0.552"
+                  width="1">
+                </a-image>
+              </a-entity>
+            </a-entity>
+          </a-entity>
+        </a-scene>
+      </div>
+      <!-- Contenedor para el reconocimiento de voz -->
+      <div id="voice-control-container">
+        <!-- Mensaje de ayuda para el usuario -->
+        <p>Habla para interactuar</p>
+        <!-- Botón de micrófono -->
+        <button id="voice-control-button">Iniciar reconocimiento de voz</button>
+      </div>
+    </div>
+  
+    <script>
+      // Variable para controlar si el reconocimiento de voz está activo
+      let recognitionActive = false;
+      // Objeto para almacenar el reconocedor de voz
+      let recognizer;
+  
+      // Función para inicializar el reconocimiento de voz
+      async function initVoiceRecognition() {
+        recognizer = speechCommands.create('BROWSER_FFT');
+        await recognizer.ensureModelLoaded();
+  
+        // Función para manejar los resultados del reconocimiento de voz
+        recognizer.listen(result => {
+          // Aquí puedes definir acciones basadas en los comandos reconocidos
+          console.log('Comando reconocido:', result);
+        }, {
+          includeSpectrogram: true,
+          probabilityThreshold: 0.75
+        });
+      }
+  
+      // Función para alternar el estado del reconocimiento de voz
+      function toggleRecognition() {
+        if (recognitionActive) {
+          recognizer.stopListening();
+          recognitionActive = false;
+          document.getElementById('voice-control-button').textContent = 'Iniciar reconocimiento de voz';
+        } else {
+          recognizer.listen();
+          recognitionActive = true;
+          document.getElementById('voice-control-button').textContent = 'Detener reconocimiento de voz';
+        }
+      }
+  
+      // Función principal para inicializar la aplicación
+      function initApp() {
+        // Inicializar el reconocimiento de voz
+        initVoiceRecognition();
+  
+        // Asignar evento al botón de micrófono
+        document.getElementById('voice-control-button').addEventListener('click', toggleRecognition);
+      }
+  
+      // Llamar a la función de inicialización al cargar la página
+      window.onload = initApp;
+    </script>
+  </body>
+</html>
